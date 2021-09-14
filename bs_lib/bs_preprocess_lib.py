@@ -146,7 +146,7 @@ def get_correlation(data):
 #     plt.show()
 
 
-def get_learning_curve(model, X, y, scoring):
+def get_learning_curve(model, X, y, scoring, show=True, savefig=False):
     # scoring value: 'neg_mean_squared_error', 'recall', ...
     n, train_score, val_score = learning_curve(
         model, X, y, cv=5, train_sizes=np.linspace(0.3, 1, 4), scoring=scoring)
@@ -157,7 +157,10 @@ def get_learning_curve(model, X, y, scoring):
     plt.xlabel('n')
     plt.ylabel(scoring)
     plt.legend()
-    plt.show()
+    if savefig:
+        plt.savefig(f'Learning_curve_{model[len(model)-1]}.png')
+    if show:
+        plt.show()
 
 
 def show_elbow(data, max_iter=10):
