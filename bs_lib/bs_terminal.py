@@ -67,16 +67,18 @@ def get_ordered_list(content):
         index = Text(key, style='list_index')
     #content = {"list":{'chi2':chi2,"pvalue":pvalue,"cramer v":cramer_v}}
 
-def create_column(name,options={}):
-    return {"name":name,'options': options}
+
+def create_column(name, options={}):
+    return {"name": name, 'options': options}
+
 
 def create_table(title, columns, data, options=[]):
     columns_ = []
     for c in range(len(columns)):
-        options_={}
-        if len(options)>0:
+        options_ = {}
+        if len(options) > 0:
             options_ = options[c]
-        columns_.append(create_column(columns[c],options_)) 
+        columns_.append(create_column(columns[c], options_))
     table = {"table": {'title': title,
                        'columns': columns_,
                        'data': data
@@ -94,7 +96,7 @@ def get_table(content):
     #           "data":[[value_1,value_2,value_3]]
     #           }
     # }
-    content=content['table']
+    content = content['table']
     table = Table(title=content['title'],
                   style='table', highlight=True, title_style='subtitle', title_justify='left', header_style='header'
                   # border_style='border', header_style='header', row_styles='row'
@@ -107,7 +109,7 @@ def get_table(content):
         # merge column options: column['options'] replace default_option
         options = {**default_options, **column['options']}
         table.add_column(column['name'], **options)
-    
+
     data = content['data']
     for row in data:
         row_ = []
@@ -138,21 +140,21 @@ def get_dataframe(content):
     df = content['dataframe']
     # {‘index’ -> [index], ‘columns’ -> [columns], ‘data’ -> [values]}
     dictionnary = df.to_dict('split')
-    # fluff
-    #dictionnary['title'] = content['title']
+
     # prepend with empty column for index
     dictionnary['columns'].insert(0, '')
-    
+
     # format columns as expected
     formatted_columns = []
     for column in dictionnary['columns']:
         formatted_columns.append(create_column(column))
-    
+
     # create rows
     data = dictionnary['data']
     for row_index in range(len(data)):
         data[row_index].insert(
             0, dictionnary['index'][row_index])
-    
-    table = create_table(title=content['title'], columns=dictionnary['columns'], data=data, options=[])
+
+    table = create_table(
+        title=content['title'], columns=dictionnary['columns'], data=data, options=[])
     return get_table(table)
