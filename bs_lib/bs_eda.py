@@ -14,7 +14,7 @@ import seaborn as sns
 
 from sklearn.model_selection import train_test_split
 
-import bs_string as bstring
+import bs_lib.bs_string as bstring
 
 tfont = {'fontsize': 15, 'fontweight': 'bold'}
 sns.set_style('darkgrid')

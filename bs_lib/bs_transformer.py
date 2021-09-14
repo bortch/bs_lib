@@ -12,7 +12,7 @@ from sklearn.compose import make_column_transformer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler
 
-import bs_terminal as term
+import bs_lib.bs_terminal as term
 
 
 class TypeConverter(BaseEstimator, TransformerMixin):
