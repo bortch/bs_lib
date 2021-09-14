@@ -57,8 +57,7 @@ class Discretizer(BaseEstimator, TransformerMixin):
         # https://stackoverflow.com/questions/56018238/python-float-argument-must-be-a-string-or-a-number-not-pandas-libs-interva
         print(X_.info())
         return X_
-
-
+        
 
 if __name__ == "__main__":
     test = pd.DataFrame({'col1': [10, 20, 30, 9], 'col2': [
