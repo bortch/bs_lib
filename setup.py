@@ -6,7 +6,7 @@ setup(
     description='ML library',
     author='BS',
     license='MIT',
-    install_requires=['tensorflow','pandas','numpy','scipy','sklearn','matplotlib','seaborn','json','re','rich'],
+    install_requires=['tensorflow','pandas','numpy','scipy','sklearn','matplotlib','seaborn','rich'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     test_suite='tests',
