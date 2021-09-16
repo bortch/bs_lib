@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from os import listdir
 from os.path import isfile, join
-from scipy.stats import iqr,chi2_contingency
+from scipy.stats import iqr, chi2_contingency
 from scipy.spatial.distance import cdist
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -476,36 +476,42 @@ def train_val_test_split(X, y, test_size, train_size, val_size, random_state=Non
         print(f"\tX_train: {X_train.shape}\n\tX_val: {X_val.shape}\n\tX_test: {X_test.shape}\n\ty_train: {y_train.shape}\n\ty_val: {y_val.shape}\n\ty_test: {y_test.shape}")
     return X_train, X_val, X_test, y_train, y_val, y_test
 
+
 def get_similar_row(to_this_row, in_data, based_on_cols, show=False):
-    subset = [] # collecting used feature to filter
-    index=0 # feature index
-    df_temp = in_data.copy() # temporary Dataframe that will be filtered out @ each iteration
-    df_result = in_data.copy() #pd.DataFrame(columns=in_data.columns.to_list()) # the result DataFrame
+    subset = []  # collecting used feature to filter
+    index = 0  # feature index
+    # temporary Dataframe that will be filtered out @ each iteration
+    df_temp = in_data.copy()
+    # pd.DataFrame(columns=in_data.columns.to_list()) # the result DataFrame
+    df_result = in_data.copy()
     df_iteration_result = in_data.copy()
-    min_not_found = True # cdt to start/end the loop
+    min_not_found = True  # cdt to start/end the loop
     while min_not_found:
         feature = based_on_cols[index]
-        df_iteration_result = in_data.where(cond=(df_temp[feature] == to_this_row[feature]), other=df_iteration_result)
-        
+        df_iteration_result = in_data.where(
+            cond=(df_temp[feature] == to_this_row[feature]), other=df_iteration_result)
+
         if not df_iteration_result.empty:
             subset.append(feature)
             #print(f"solution found:{df_iteration_result[feature]}\n")
             df_temp = df_iteration_result
             df_result = df_iteration_result
-        
-        if index<len(based_on_cols)-1:
-            index+=1
+
+        if index < len(based_on_cols)-1:
+            index += 1
         else:
-            min_not_found=False
+            min_not_found = False
             if show:
-                print(f"\nSolution:\nrow:\n{to_this_row}\nfeature:\n{subset}\nresult:\n{df_result.describe()}\n")
+                print(
+                    f"\nSolution:\nrow:\n{to_this_row}\nfeature:\n{subset}\nresult:\n{df_result.describe()}\n")
             return df_result
     return df_result
     #ary = cdist(df2, df1, metric='euclidean')
-    #df2[ary==ary.min()]
+    # df2[ary==ary.min()]
 
-def unbiased_cramer_v(x,y, show=False):
-    #It ranges from 0 to 1 where:
+
+def unbiased_cramer_v(x, y, show=False):
+    # It ranges from 0 to 1 where:
     #  * 0 indicates no association between the two variables.
     #  * 1 indicates a strong association between the two variables.
     crosstab = pd.crosstab(x, y)
@@ -515,7 +521,8 @@ def unbiased_cramer_v(x,y, show=False):
     phi2d = max(0, chi2/n-((k-1)*(r-1))/(n-1))
     kd = k-(k-1)**2/(n-1)
     rd = r-(r-1)**2/(n-1)
-    cramer_v = np.sqrt(phi2d/min(kd-1,rd-1))
+    cramer_v = np.sqrt(phi2d/min(kd-1, rd-1))
     if show:
-        print(f"\nchi2: {chi2:.4f}\npvalue: {pvalue:.4f}\nCramer V: {cramer_v:.4f}\n")
+        print(
+            f"\nchi2: {chi2:.4f}\npvalue: {pvalue:.4f}\nCramer V: {cramer_v:.4f}\n")
     return chi2, pvalue, cramer_v

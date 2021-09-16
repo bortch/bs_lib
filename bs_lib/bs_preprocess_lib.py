@@ -10,6 +10,8 @@ from sklearn import metrics
 from sklearn.model_selection import learning_curve
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+from sklearn.preprocessing import MinMaxScaler
 
 import json
 #from sklearn.base import TransformerMixin
@@ -35,100 +37,6 @@ tfont = {'fontsize': 15, 'fontweight': 'bold'}
 sns.set_style('darkgrid')
 
 
-def get_histplot(data, column, log=False):
-    plt.figure(figsize=(12, 7))
-    plt.title(f'\nHistplot for {column}', fontdict=tfont)
-    if log == True:
-        data = np.log(data[column])
-    else:
-        data = data[column]
-    sns.histplot(data=data, fill=True, kde=True)
-    plt.show()
-
-
-def get_countplot(data, column):
-    plt.figure(figsize=(12, 7))
-    plt.title(f'\n Countplot for {column}+', fontdict=tfont)
-    sns.countplot(x=data[column])
-    plt.show()
-    print(data[column].value_counts(normalize=True))
-
-
-def get_ecdf(data, col):
-    plt.figure(figsize=(12, 7))
-    plt.title(f'ECDF for {col}', fontdict=tfont)
-    sns.ecdfplot(data=data, x=col, hue='stroke')
-    plt.axhline(0.5, c='red', linestyle='dashed')
-    plt.show()
-
-
-def get_kde(data, col, target):
-    plt.figure(figsize=(12, 7))
-    plt.title(f"kde {col}", fontdict=tfont)
-    target_values = data[target].unique()
-    colors = ['b', 'g', 'r', 'c', 'm', 'y']
-    i = -1
-    for v in target_values:
-        i += 1
-        c = colors[i % len(colors)]
-        sns.kdeplot(x=data[col][data[target] == v], label=v, fill=True)
-    # common_norm = False permet de ramener
-    # les 2 kde sur une même échelle
-    # on ajoute les moyennes conditionnelles
-        plt.axvline(data[col].mean(),
-                    c='k',
-                    linestyle='dashed',
-                    label=f'mean for {col}')
-        plt.axvline(data[col][data[target] == v].mean(),
-                    linestyle='dashed',
-                    color=c,
-                    label=f'mean for {v}')
-        plt.legend()
-        plt.show()
-        print(
-            f"Avg {col} for {target} == {v}: {data[col][data[target]==v].mean()}")
-
-
-def get_kde_continue(data, col, target):
-    plt.figure(figsize=(12, 7))
-    plt.title(f"Kernel Density Estimation for {col}", fontdict=tfont)
-    sns.kdeplot(x=data[col], y=data[target], fill=True)
-    # common_norm = False permet de ramener
-    # les 2 kde sur une même échelle
-    # on ajoute les moyennes conditionnelles
-    plt.axvline(data[col].mean(), label=f'{col} mean',
-                c='red', linestyle='dashed')
-    plt.axhline(data[target].mean(), label=f'{target} mean',
-                c='blue', linestyle='dashed')
-    plt.legend()
-    plt.show()
-    print(f"Avg {col}: {data[col].mean()}")
-    print(f"Avg {target}: {data[target].mean()}")
-
-
-def get_ecdf(data, col, target):
-    plt.figure(figsize=(12, 7))
-    plt.title(f'ECDF for {col}', fontdict=tfont)
-    sns.ecdfplot(data=data, x=col, hue=target)
-    plt.axhline(0.5, c='red', linestyle='dashed')
-    plt.show()
-
-
-def get_crosstab(data, col, target):
-    temp = pd.crosstab(data[col], data[target],
-                       normalize='columns')
-    # afficher sous forme de frequence: normalize='columns'
-    plt.figure(figsize=(12, 7))
-    plt.title(f'Crosstab Heatmap for {col} frequency\n', fontdict=tfont)
-    sns.heatmap(temp, annot=True, cmap='Blues', cbar=False)
-    plt.show()
-
-
-def get_correlation(data):
-    plt.figure(figsize=(12, 7))
-    plt.title('Correlation Coefficient \n', tfont)
-    sns.heatmap(data.corr(), annot=True, cmap='Blues', cbar=False)
-    plt.show()
 
 # def get_learning_curve(model, X_train, y_train):
 #     n, train_score, val_score = learning_curve(model, X_train, y_train,
@@ -149,7 +57,7 @@ def get_correlation(data):
 def get_learning_curve(model, X, y, scoring, show=True, savefig=False):
     # scoring value: 'neg_mean_squared_error', 'recall', ...
     n, train_score, val_score = learning_curve(
-        model, X, y, cv=5, train_sizes=np.linspace(0.3, 1, 4), scoring=scoring)
+        model, X, y, cv=5, train_sizes=np.linspace(0.3, 1, 5), scoring=scoring, n_jobs=-1)
     plt.figure(figsize=(12, 7))
     plt.title('Learning curve for %s' % model[len(model)-1], fontdict=tfont)
     plt.plot(n, train_score.mean(axis=1), label='Train score')
@@ -391,4 +299,147 @@ def multi_plot_best_results(data, params_values, compare=None, x_zoom=0, y_zoom=
     plt.ylabel(_labels['y_axis'])
     plt.xlabel(_labels['x_axis'])
     plt.legend()
+    plt.show()
+
+
+def get_silhouette(X, max_cluster=12, min_cluster=2, show=False):
+    scaler = MinMaxScaler()
+    X_scaled = scaler.fit_transform(X)
+    km_silhouette = []
+    if min_cluster < 2:
+        min_cluster = 2
+    for i in range(min_cluster, max_cluster+1):
+        km = KMeans(n_clusters=i, random_state=0).fit(X_scaled)
+        preds = km.predict(X_scaled)
+        silhouette = silhouette_score(X_scaled, preds)
+        km_silhouette.append(silhouette)
+        if show:
+            print(f"Silhouette score for {i} cluster(s): {silhouette:.4f}")
+
+    plt.figure(figsize=(7, 4))
+    plt.title(
+        "The silhouette coefficient method \nfor determining number of clusters\n", fontsize=16)
+    plt.scatter(x=[i for i in range(min_cluster, max_cluster+1)],
+                y=km_silhouette, s=150, edgecolor='k')
+    plt.grid(True)
+    plt.xlabel("Number of clusters", fontsize=14)
+    plt.ylabel("Silhouette score", fontsize=15)
+    plt.xticks([i for i in range(min_cluster, max_cluster+1)], fontsize=14)
+    plt.yticks(fontsize=15)
+    plt.show()
+
+
+def plot_learning_curve(estimator, title, X, y, axes=None, ylim=None, cv=None,
+                        n_jobs=None, train_sizes=np.linspace(.1, 1.0, 5)):
+    """
+    Generate 3 plots: the test and training learning curve, the training
+    samples vs fit times curve, the fit times vs score curve.
+
+    Parameters
+    ----------
+    estimator : estimator instance
+        An estimator instance implementing `fit` and `predict` methods which
+        will be cloned for each validation.
+
+    title : str
+        Title for the chart.
+
+    X : array-like of shape (n_samples, n_features)
+        Training vector, where ``n_samples`` is the number of samples and
+        ``n_features`` is the number of features.
+
+    y : array-like of shape (n_samples) or (n_samples, n_features)
+        Target relative to ``X`` for classification or regression;
+        None for unsupervised learning.
+
+    axes : array-like of shape (3,), default=None
+        Axes to use for plotting the curves.
+
+    ylim : tuple of shape (2,), default=None
+        Defines minimum and maximum y-values plotted, e.g. (ymin, ymax).
+
+    cv : int, cross-validation generator or an iterable, default=None
+        Determines the cross-validation splitting strategy.
+        Possible inputs for cv are:
+
+          - None, to use the default 5-fold cross-validation,
+          - integer, to specify the number of folds.
+          - :term:`CV splitter`,
+          - An iterable yielding (train, test) splits as arrays of indices.
+
+        For integer/None inputs, if ``y`` is binary or multiclass,
+        :class:`StratifiedKFold` used. If the estimator is not a classifier
+        or if ``y`` is neither binary nor multiclass, :class:`KFold` is used.
+
+        Refer :ref:`User Guide <cross_validation>` for the various
+        cross-validators that can be used here.
+
+    n_jobs : int or None, default=None
+        Number of jobs to run in parallel.
+        ``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.
+        ``-1`` means using all processors. See :term:`Glossary <n_jobs>`
+        for more details.
+
+    train_sizes : array-like of shape (n_ticks,)
+        Relative or absolute numbers of training examples that will be used to
+        generate the learning curve. If the ``dtype`` is float, it is regarded
+        as a fraction of the maximum size of the training set (that is
+        determined by the selected validation method), i.e. it has to be within
+        (0, 1]. Otherwise it is interpreted as absolute sizes of the training
+        sets. Note that for classification the number of samples usually have
+        to be big enough to contain at least one sample from each class.
+        (default: np.linspace(0.1, 1.0, 5))
+    """
+    if axes is None:
+        _, axes = plt.subplots(1, 3, figsize=(20, 5))
+
+    axes[0].set_title(title)
+    if ylim is not None:
+        axes[0].set_ylim(*ylim)
+    axes[0].set_xlabel("Training examples")
+    axes[0].set_ylabel("Score")
+
+    train_sizes, train_scores, test_scores, fit_times, _ = \
+        learning_curve(estimator, X, y, cv=cv, n_jobs=n_jobs,
+                       train_sizes=train_sizes,
+                       return_times=True)
+    train_scores_mean = np.mean(train_scores, axis=1)
+    train_scores_std = np.std(train_scores, axis=1)
+    test_scores_mean = np.mean(test_scores, axis=1)
+    test_scores_std = np.std(test_scores, axis=1)
+    fit_times_mean = np.mean(fit_times, axis=1)
+    fit_times_std = np.std(fit_times, axis=1)
+
+    # Plot learning curve
+    axes[0].grid()
+    axes[0].fill_between(train_sizes, train_scores_mean - train_scores_std,
+                         train_scores_mean + train_scores_std, alpha=0.1,
+                         color="r")
+    axes[0].fill_between(train_sizes, test_scores_mean - test_scores_std,
+                         test_scores_mean + test_scores_std, alpha=0.1,
+                         color="g")
+    axes[0].plot(train_sizes, train_scores_mean, 'o-', color="r",
+                 label="Training score")
+    axes[0].plot(train_sizes, test_scores_mean, 'o-', color="g",
+                 label="Cross-validation score")
+    axes[0].legend(loc="best")
+
+    # Plot n_samples vs fit_times
+    axes[1].grid()
+    axes[1].plot(train_sizes, fit_times_mean, 'o-')
+    axes[1].fill_between(train_sizes, fit_times_mean - fit_times_std,
+                         fit_times_mean + fit_times_std, alpha=0.1)
+    axes[1].set_xlabel("Training examples")
+    axes[1].set_ylabel("fit_times")
+    axes[1].set_title("Scalability of the model")
+
+    # Plot fit_time vs score
+    axes[2].grid()
+    axes[2].plot(fit_times_mean, test_scores_mean, 'o-')
+    axes[2].fill_between(fit_times_mean, test_scores_mean - test_scores_std,
+                         test_scores_mean + test_scores_std, alpha=0.1)
+    axes[2].set_xlabel("fit_times")
+    axes[2].set_ylabel("Score")
+    axes[2].set_title("Performance of the model")
+
     plt.show()
