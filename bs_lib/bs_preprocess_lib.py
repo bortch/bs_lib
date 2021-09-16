@@ -54,23 +54,6 @@ sns.set_style('darkgrid')
 #     plt.show()
 
 
-def get_learning_curve(model, X, y, scoring, show=True, savefig=False):
-    # scoring value: 'neg_mean_squared_error', 'recall', ...
-    n, train_score, val_score = learning_curve(
-        model, X, y, cv=5, train_sizes=np.linspace(0.3, 1, 5), scoring=scoring, n_jobs=-1)
-    plt.figure(figsize=(12, 7))
-    plt.title('Learning curve for %s' % model[len(model)-1], fontdict=tfont)
-    plt.plot(n, train_score.mean(axis=1), label='Train score')
-    plt.plot(n, val_score.mean(axis=1), label='Validation score')
-    plt.xlabel('n')
-    plt.ylabel(scoring)
-    plt.legend()
-    if savefig:
-        plt.savefig(f'Learning_curve_{model[len(model)-1]}.png')
-    if show:
-        plt.show()
-
-
 def show_elbow(data, max_iter=10):
     nb_clusters = range(max_iter)
     inertia = np.empty(max_iter)
@@ -330,7 +313,7 @@ def get_silhouette(X, max_cluster=12, min_cluster=2, show=False):
 
 
 def plot_learning_curve(estimator, title, X, y, axes=None, ylim=None, cv=None,
-                        n_jobs=None, train_sizes=np.linspace(.1, 1.0, 5)):
+                        n_jobs=None, train_sizes=np.linspace(.1, 1.0, 5), show=True,savefig=False):
     """
     Generate 3 plots: the test and training learning curve, the training
     samples vs fit times curve, the fit times vs score curve.
@@ -441,5 +424,23 @@ def plot_learning_curve(estimator, title, X, y, axes=None, ylim=None, cv=None,
     axes[2].set_xlabel("fit_times")
     axes[2].set_ylabel("Score")
     axes[2].set_title("Performance of the model")
+    if savefig:
+        plt.savefig(f'Learning_curve_{title}.png')
+    if show:
+        plt.show()
 
-    plt.show()
+def get_learning_curve(model, X, y, scoring, show=True, savefig=False):
+    # scoring value: 'neg_mean_squared_error', 'recall', ...
+    n, train_score, val_score = learning_curve(
+        model, X, y, cv=5, train_sizes=np.linspace(0.3, 1, 5), scoring=scoring, n_jobs=-1)
+    plt.figure(figsize=(12, 7))
+    plt.title('Learning curve for %s' % model[len(model)-1], fontdict=tfont)
+    plt.plot(n, train_score.mean(axis=1), label='Train score')
+    plt.plot(n, val_score.mean(axis=1), label='Validation score')
+    plt.xlabel('n')
+    plt.ylabel(scoring)
+    plt.legend()
+    if savefig:
+        plt.savefig(f'Learning_curve_{model[len(model)-1]}.png')
+    if show:
+        plt.show()
