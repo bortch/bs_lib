@@ -54,17 +54,18 @@ sns.set_style('darkgrid')
 #     plt.show()
 
 
-def show_elbow(data, max_iter=10):
+def show_elbow(data, max_iter=10,title=''):
     nb_clusters = range(max_iter)
     inertia = np.empty(max_iter)
     for i in nb_clusters:
         km = KMeans(n_clusters=i+1, random_state=1).fit(data)
         inertia[i] = km.inertia_
-    plt.figure(figsize=(12, 7))
+    plt.figure(figsize=(10, 6))
+    plt.title(f'Nbr of Clusters - Elbow Method {title}', fontsize=14)
     plt.plot(nb_clusters, inertia)
     plt.xlabel("Number of Clusters")
     plt.ylabel("Total Inertia")
-    plt.legend()
+    #plt.legend()
     plt.show()
 
 # Learning curve
