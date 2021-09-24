@@ -447,7 +447,7 @@ def get_learning_curve(model, X, y, scoring, show=True, savefig=False):
     if show:
         plt.show()
 
-def plot_validation_curve(model,X,y):
+def plot_validation_curve(model,X,y,param_name,param_range):
 
     param_range = np.logspace(-6, -1, 5)
     train_scores, test_scores = validation_curve(
@@ -461,7 +461,7 @@ def plot_validation_curve(model,X,y):
     plt.title("Validation Curve with SVM")
     plt.xlabel(r"$\gamma$")
     plt.ylabel("Score")
-    plt.ylim(0.0, 1.1)
+    plt.ylim(0.0, 1.1)  
     lw = 2
     plt.semilogx(param_range, train_scores_mean, label="Training score",
                  color="darkorange", lw=lw)
