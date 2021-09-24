@@ -474,6 +474,8 @@ def split_by_row(data, percentage):
     return da, ta
 
 def train_val_test_split(X, y, test_size, train_size, val_size, random_state=None, show=False):
+    X = X.reset_index(drop=True)
+    y = y.reset_index(drop=True)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, train_size=train_size, random_state=random_state)
     X_val, X_test, y_val, y_test = train_test_split(
