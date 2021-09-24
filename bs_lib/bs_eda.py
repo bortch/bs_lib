@@ -20,7 +20,7 @@ tfont = {'fontsize': 15, 'fontweight': 'bold'}
 sns.set_style('darkgrid')
 
 
-def load_all_csv(dataset_path="dataset", exclude=[]):
+def load_all_csv(dataset_path="dataset", exclude=[], index=None):
     """Read every csv files from a directory and return a dictionnay of pandas DataFrames. 
     Dictionnary's keys are the filename without extension.
 
@@ -34,7 +34,7 @@ def load_all_csv(dataset_path="dataset", exclude=[]):
     files = [join(dataset_path, f) for f in listdir(dataset_path) if (
         isfile(join(dataset_path, f)) and f.endswith('.csv') and f not in exclude)]
     print(f'loading:{files}')
-    all_data = load_csv_files_as_dict(files)
+    all_data = load_csv_files_as_dict(files, index=index)
     return all_data
 
 
@@ -44,7 +44,7 @@ def concat_csv_files_as_dataframe(directory_path):
     return all_data
 
 
-def load_csv_file(file_path):
+def load_csv_file(file_path, index=None):
     """Load a csv file as a dataset. Columns name are sanitized as lower snake case
 
     Args:
@@ -53,19 +53,19 @@ def load_csv_file(file_path):
     Returns:
         Dataframe: a Pandas DataFrame
     """
-    df = pd.read_csv(file_path)
+    df = pd.read_csv(file_path, index_col=index)
     df.columns = bstring.to_snake_case(df.columns.tolist())
     return df
 
 
-def load_csv_files_as_dict(files):
+def load_csv_files_as_dict(files, index=None):
     all_data = {}
     for f in files:
-        print(f"Parsing {f}")
-        df = load_csv_file(f)
+        df = load_csv_file(f, index=index)
         # add dataframe to dict
         key = bstring.to_snake_case(f[:-4])
         key = key.split('/')[-1]
+        print(f"Parsing {f} key:{key}")
         all_data[key] = df
 
     return all_data
@@ -465,16 +465,24 @@ def get_suspected_outliers(data, feature, show=False):
             data=data, feature=feature, value=high_limit, operator='>')
         return low_outlier, high_outlier
 
+def split_by_row(data, percentage):
+    da = data.sample(frac=percentage)
+    ta = data[~data.index.isin(da.index)]
+    da=da.reset_index(drop=True)
+    ta=ta.reset_index(drop=True)
+    #print(da.info(),ta.info())
+    return da, ta
 
 def train_val_test_split(X, y, test_size, train_size, val_size, random_state=None, show=False):
-
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, train_size=train_size, random_state=random_state)
     X_val, X_test, y_val, y_test = train_test_split(
         X_test, y_test, test_size=test_size/(test_size + val_size), random_state=random_state, shuffle=False)
     if show:
+        print("\nSplitting into train, val and test sets")
         print(f"\tX_train: {X_train.shape}\n\tX_val: {X_val.shape}\n\tX_test: {X_test.shape}\n\ty_train: {y_train.shape}\n\ty_val: {y_val.shape}\n\ty_test: {y_test.shape}")
     return X_train, X_val, X_test, y_train, y_val, y_test
+
 
 
 def get_similar_row(to_this_row, in_data, based_on_cols, show=False):
