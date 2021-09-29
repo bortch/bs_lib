@@ -20,7 +20,7 @@ tfont = {'fontsize': 15, 'fontweight': 'bold'}
 sns.set_style('darkgrid')
 
 
-def load_all_csv(dataset_path="dataset", exclude=[], index=None):
+def load_all_csv(dataset_path="dataset", exclude=[], index=None, verbose=False):
     """Read every csv files from a directory and return a dictionnay of pandas DataFrames. 
     Dictionnary's keys are the filename without extension.
 
@@ -33,8 +33,9 @@ def load_all_csv(dataset_path="dataset", exclude=[], index=None):
     """
     files = [join(dataset_path, f) for f in listdir(dataset_path) if (
         isfile(join(dataset_path, f)) and f.endswith('.csv') and f not in exclude)]
-    print(f'loading:{files}')
-    all_data = load_csv_files_as_dict(files, index=index)
+    if verbose:
+        print(f'loading:{files}')
+    all_data = load_csv_files_as_dict(files, index=index,verbose=verbose)
     return all_data
 
 
@@ -58,14 +59,15 @@ def load_csv_file(file_path, index=None):
     return df
 
 
-def load_csv_files_as_dict(files, index=None):
+def load_csv_files_as_dict(files, index=None, verbose=False):
     all_data = {}
     for f in files:
         df = load_csv_file(f, index=index)
         # add dataframe to dict
         key = bstring.to_snake_case(f[:-4])
         key = key.split('/')[-1]
-        print(f"Parsing {f} key:{key}")
+        if verbose:
+            print(f"Parsing {f} key:{key}")
         all_data[key] = df
 
     return all_data
@@ -90,7 +92,7 @@ def get_numerical_columns(data):
 
 
 def get_categorical_columns(data):
-    return list(data.select_dtypes(include='object').columns.values)
+    return list(data.select_dtypes(include=['object','category']).columns.values)
 
 
 def get_histplot(data, column, log=False, rotation=0):
@@ -536,3 +538,19 @@ def unbiased_cramer_v(x, y, show=False):
         print(
             f"\nchi2: {chi2:.4f}\npvalue: {pvalue:.4f}\nCramer V: {cramer_v:.4f}\n")
     return chi2, pvalue, cramer_v
+
+def get_ordered_categories(data, by):
+    df = data.copy()
+    categories = {}
+    columns = get_categorical_columns(df)
+    for cat in columns:
+        ordered_df = df[[cat, by]]
+        ordered_df = ordered_df.groupby(cat).agg('mean').reset_index()
+        ordered_df.sort_values(
+            by, ascending=True, inplace=True, ignore_index=True)
+        #print(type(ordered_df[cat].values))
+        categories[cat]=[]
+        for c in ordered_df[cat].values: 
+            categories[cat].append(c)
+        #categories[cat] = ordered_df[cat].values
+    return categories

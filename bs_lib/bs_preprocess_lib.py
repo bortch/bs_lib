@@ -15,6 +15,7 @@ from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import MinMaxScaler
 
 import json
+
 #from sklearn.base import TransformerMixin
 
 #from sklearn.preprocessing import StandardScaler, OneHotEncoder
