@@ -13,6 +13,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import make_scorer, mean_squared_error
 
 import json
 
@@ -448,19 +449,20 @@ def get_learning_curve(model, X, y, scoring, show=True, savefig=False):
     if show:
         plt.show()
 
-def plot_validation_curve(model,X,y,param_name,param_range):
+def plot_validation_curve(model,X,y,param_name,param_range=0):
 
     param_range = np.logspace(-6, -1, 5)
+    mse = make_scorer(mean_squared_error, greater_is_better=False)
     train_scores, test_scores = validation_curve(
-        model, X, y, param_name="gamma", param_range=param_range,
-        scoring="accuracy", n_jobs=1)
+        model, X, y, param_name=param_name, param_range=param_range,
+        scoring=mse, n_jobs=2)
     train_scores_mean = np.mean(train_scores, axis=1)
     train_scores_std = np.std(train_scores, axis=1)
     test_scores_mean = np.mean(test_scores, axis=1)
     test_scores_std = np.std(test_scores, axis=1)
     
     plt.title("Validation Curve with SVM")
-    plt.xlabel(r"$\gamma$")
+    plt.xlabel(f"{param_name}")
     plt.ylabel("Score")
     plt.ylim(0.0, 1.1)  
     lw = 2
