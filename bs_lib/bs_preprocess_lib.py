@@ -79,23 +79,33 @@ def show_elbow(data, max_iter=10,title=''):
 def get_nn_learning_curve(history, title='', filename=None, show=False):
     '''history: tf History object with keys: ['loss', 'accuracy', 'val_loss', 'val_accuracy']
     '''
+    print(history.keys())
+    if 'val_loss' in history:
+        val_loss = history['val_loss']
+    else:
+        val_loss=None
     get_loss_curve(loss=history['loss'],
-                   val_loss=history['val_loss'],
+                   val_loss=val_loss,
                    title=title, filename=filename, show=show)
+    if 'val_accuracy' in history:
+        val_accuracy=history['val_accuracy']
+    else:
+        val_accuracy=None
     get_accuracy_curve(
         accuracy=history['accuracy'],
-        val_accuracy=history['val_accuracy'],
+        val_accuracy=val_accuracy,
         title=title, filename=filename, show=show)
 
 
-def get_loss_curve(loss, val_loss, title='', filename=None, show=False):
+def get_loss_curve(loss, val_loss=None, title='', filename=None, show=False):
     plt.figure(figsize=(12, 7))
     # loss et val_loss
 
     plt.suptitle(f'Loss curve', fontsize=14)
     plt.title(title, fontsize=10)
     plt.plot(loss, label='train')
-    plt.plot(val_loss, label='validation')
+    if not val_loss==None:
+        plt.plot(val_loss, label='validation')
     plt.xlabel('epochs')
     plt.ylabel('loss')
     plt.legend()
@@ -107,13 +117,14 @@ def get_loss_curve(loss, val_loss, title='', filename=None, show=False):
         plt.show()
 
 
-def get_accuracy_curve(accuracy, val_accuracy, title='', filename=None, show=False):
+def get_accuracy_curve(accuracy, val_accuracy=None, title='', filename=None, show=False):
     plt.figure(figsize=(12, 7))
     # accuracy et val_accuracy
     plt.suptitle(f'Accuracy curve', fontsize=14)
     plt.title(title, fontsize=10)
     plt.plot(accuracy, label='train')
-    plt.plot(val_accuracy, label='validation')
+    if not val_accuracy==None:
+        plt.plot(val_accuracy, label='validation')
     plt.xlabel('epochs')
     plt.ylabel('accuracy')
     plt.legend()

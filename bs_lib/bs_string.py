@@ -14,6 +14,19 @@ def to_snake_case(string):
         string = re.sub('(_)+', '_', str(string))
         return string.lower()
 
+def extract_string(from_string,at_position,separator='_'):
+    """Extract string from another one
+
+    Args:
+        from_string (string): a string with format like {part0}_{part1}_{part2}_{part3}.{extension}
+        at_position (int): position of the string to extract
+        separator (str, optional): the separator used to split {from_string}. Defaults to '_'.
+
+    Returns:
+        string: the extracted string
+    """    
+    string_list = from_string.split(separator)
+    return string_list[at_position]
 
 if __name__ == "__main__":
 
