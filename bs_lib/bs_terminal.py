@@ -27,6 +27,12 @@ custom_theme = Theme({
 
 
 def article(title, content):
+    """print a title and a content
+
+    Args:
+        title (str): Title of the article
+        content (dict, list of dict): a content object or list of dict
+    """    
     console = Console(theme=custom_theme)
     title_ = Text(title.upper())
     title_.stylize('title')

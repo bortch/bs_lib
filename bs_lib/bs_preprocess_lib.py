@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.gridspec as gridspec
 import seaborn as sns
-from sklearn import metrics
 
 # ,train_test_split, GridSearchCV
 from sklearn.model_selection import learning_curve
@@ -17,47 +16,11 @@ from sklearn.metrics import make_scorer, mean_squared_error
 
 import json
 
-#from sklearn.base import TransformerMixin
-
-#from sklearn.preprocessing import StandardScaler, OneHotEncoder
-#from sklearn.impute import SimpleImputer
-# from sklearn.pipeline import make_pipeline # on utilise la version de imblearn
-#from sklearn.compose import make_column_transformer
-#from sklearn.decomposition import PCA
-
-#from sklearn.tree import DecisionTreeClassifier, plot_tree
-#from sklearn.ensemble import RandomForestClassifier
-#from sklearn.linear_model import LinearRegression
-
-#from imblearn.over_sampling import RandomOverSampler
-#from imblearn.pipeline import make_pipeline
-
-# model persistence
-# import pickle #(bien pour petit objet)
-#from joblib import dump, load
-
 tfont = {'fontsize': 15, 'fontweight': 'bold'}
 sns.set_style('darkgrid')
 
 
-
-# def get_learning_curve(model, X_train, y_train):
-#     n, train_score, val_score = learning_curve(model, X_train, y_train,
-#                                                cv=5, scoring='recall',
-#                                                train_sizes=np.linspace(0.3, 1, 5))
-#     # train_score et val_score sont le résultat de 5 cross validation
-#     # donc il faut prendre la moyenne
-#     plt.figure(figsize=(12, 7))
-#     plt.title('Learning Curve', fontdict=tfont)
-#     plt.plot(n, train_score.mean(axis=1), label='train_score')
-#     plt.plot(n, val_score.mean(axis=1), label='val_score')
-#     plt.xlabel('n')
-#     plt.ylabel('recall')
-#     plt.legend()
-#     plt.show()
-
-
-def show_elbow(data, max_iter=10,title=''):
+def show_elbow(data, max_iter=10, title=''):
     nb_clusters = range(max_iter)
     inertia = np.empty(max_iter)
     for i in nb_clusters:
@@ -68,12 +31,8 @@ def show_elbow(data, max_iter=10,title=''):
     plt.plot(nb_clusters, inertia)
     plt.xlabel("Number of Clusters")
     plt.ylabel("Total Inertia")
-    #plt.legend()
+    # plt.legend()
     plt.show()
-
-# Learning curve
-# imprimer la loss et l'accuracy
-# suivant les epochs
 
 
 def get_nn_learning_curve(history, title='', filename=None, show=False):
@@ -83,14 +42,14 @@ def get_nn_learning_curve(history, title='', filename=None, show=False):
     if 'val_loss' in history:
         val_loss = history['val_loss']
     else:
-        val_loss=None
+        val_loss = None
     get_loss_curve(loss=history['loss'],
                    val_loss=val_loss,
                    title=title, filename=filename, show=show)
     if 'val_accuracy' in history:
-        val_accuracy=history['val_accuracy']
+        val_accuracy = history['val_accuracy']
     else:
-        val_accuracy=None
+        val_accuracy = None
     get_accuracy_curve(
         accuracy=history['accuracy'],
         val_accuracy=val_accuracy,
@@ -104,7 +63,7 @@ def get_loss_curve(loss, val_loss=None, title='', filename=None, show=False):
     plt.suptitle(f'Loss curve', fontsize=14)
     plt.title(title, fontsize=10)
     plt.plot(loss, label='train')
-    if not val_loss==None:
+    if not val_loss == None:
         plt.plot(val_loss, label='validation')
     plt.xlabel('epochs')
     plt.ylabel('loss')
@@ -123,7 +82,7 @@ def get_accuracy_curve(accuracy, val_accuracy=None, title='', filename=None, sho
     plt.suptitle(f'Accuracy curve', fontsize=14)
     plt.title(title, fontsize=10)
     plt.plot(accuracy, label='train')
-    if not val_accuracy==None:
+    if not val_accuracy == None:
         plt.plot(val_accuracy, label='validation')
     plt.xlabel('epochs')
     plt.ylabel('accuracy')
@@ -328,7 +287,7 @@ def get_silhouette(X, max_cluster=12, min_cluster=2, show=False):
 
 
 def plot_learning_curve(estimator, title, X, y, axes=None, ylim=None, cv=None,
-                        n_jobs=None, train_sizes=np.linspace(.1, 1.0, 5), show=True,savefig=False):
+                        n_jobs=None, train_sizes=np.linspace(.1, 1.0, 5), show=True, savefig=False):
     """
     Generate 3 plots: the test and training learning curve, the training
     samples vs fit times curve, the fit times vs score curve.
@@ -444,6 +403,7 @@ def plot_learning_curve(estimator, title, X, y, axes=None, ylim=None, cv=None,
     if show:
         plt.show()
 
+
 def get_learning_curve(model, X, y, scoring, show=True, savefig=False):
     # scoring value: 'neg_mean_squared_error', 'recall', ...
     n, train_score, val_score = learning_curve(
@@ -460,7 +420,8 @@ def get_learning_curve(model, X, y, scoring, show=True, savefig=False):
     if show:
         plt.show()
 
-def plot_validation_curve(model,X,y,param_name,param_range=0):
+
+def plot_validation_curve(model, X, y, param_name, param_range=0):
 
     param_range = np.logspace(-6, -1, 5)
     mse = make_scorer(mean_squared_error, greater_is_better=False)
@@ -471,11 +432,11 @@ def plot_validation_curve(model,X,y,param_name,param_range=0):
     train_scores_std = np.std(train_scores, axis=1)
     test_scores_mean = np.mean(test_scores, axis=1)
     test_scores_std = np.std(test_scores, axis=1)
-    
+
     plt.title("Validation Curve with SVM")
     plt.xlabel(f"{param_name}")
     plt.ylabel("Score")
-    plt.ylim(0.0, 1.1)  
+    plt.ylim(0.0, 1.1)
     lw = 2
     plt.semilogx(param_range, train_scores_mean, label="Training score",
                  color="darkorange", lw=lw)

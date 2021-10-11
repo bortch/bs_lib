@@ -1,124 +1,29 @@
 import math
 import pandas as pd
 import numpy as np
-from os import listdir
-from os.path import isfile, join
+
 from scipy.stats import iqr, chi2_contingency
-from scipy.spatial.distance import cdist
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.gridspec as gridspec
 import seaborn as sns
 
 from sklearn.model_selection import train_test_split
 
-import bs_lib.bs_string as bstring
+import bs_lib.bs_file as bsf
 
 tfont = {'fontsize': 15, 'fontweight': 'bold'}
 sns.set_style('darkgrid')
 
-def get_list_dir(in_directory_path, with_extension=None, match_terms=[], exclude_terms=[], separator=".",verbose=False):
-    """Get all files from in_directory_path without or with_extension, matching given match_term or not in exclude_term. 
-    It creates a dict with the filename as value and as key the first part of the filename splitted around a given separator or '.'
+# DEPRECATED
+def get_list_dir(in_directory_path, with_extension=None, match_terms=[], exclude_terms=[], separator=".", verbose=False):
+    print('bs_eda.get_list_dir deprecated use bs_file.get_list_dir')
+    return bsf.get_list_dir(in_directory_path=in_directory_path, with_extension=with_extension, match_terms=match_terms, exclude_terms=exclude_terms, separator=separator, verbose=verbose)
 
-    Args:
-        in_directory_path (String): The path to the directory
-        with_extension (list, optional): a list of all extensions needed. Defaults to None.
-        match_terms (list, optional): a list of terms to match. Defaults to [].
-        exclude_terms (list, optional): a list of term to exclude. Defaults to [].
-        separator (str, optional): the separator used to split filename in key and value. Defaults to ".".
-        verbose (bool, optional): verbosity. Defaults to False.
-
-    Returns:
-        dict: A dict where 'value' contains the whole filename and 'keys' are the first part of the splitted filename around the given separator
-    """    
-    files = {}
-    all_files_in_directory = listdir(in_directory_path) 
-    for filename in sorted(all_files_in_directory):
-        if verbose:
-            print(f"\npath:{join(in_directory_path, filename)}")
-            print(f"is a file? {isfile(join(in_directory_path, filename))}")
-            print(f"has the right extension? {( not with_extension or filename.endswith(with_extension))}")
-            print(f"matches terms? {len(match_terms)<1 or any(x in filename for x in match_terms) or filename in match_terms}")
-            print(f"matches excluded terms? {len(exclude_terms)<1 or not any(x in filename for x in exclude_terms)}")
-        # fetch model filename
-        if (isfile(join(in_directory_path, filename))
-                and ( not with_extension or filename.endswith(with_extension))
-                and (len(exclude_terms)<1 or not any(x in filename for x in exclude_terms))
-                and (len(match_terms)<1 or any(x in filename for x in match_terms))):
-            file_name = filename.split(separator)[0]
-            files[file_name] = filename
-    return files
-
+#DEPRECATED
 def load_all_csv(dataset_path="dataset", exclude=[], index=None, verbose=False):
-    """Read every csv files from a directory and return a dictionnay of pandas DataFrames. 
-    Dictionnary's keys are the filename without extension.
-
-    Args:
-        dataset_path (str, optional): the directory's path were csv files are stored. Defaults to "dataset".
-        exclude (str,optional): A list of filename to exclude with extension. Defaults to None
-        index (int,optional): which column is an index. Defaults to None.
-        verbose (bool,optional) Default to False.
-
-    Returns:
-        dict: a dictionnay of pandas DataFrames. Dictionnary's keys are the filename in snake case and without extension.
-    """
-    files = [join(dataset_path, f) for f in listdir(dataset_path) if (
-        isfile(join(dataset_path, f)) and f.endswith('.csv') and f not in exclude)]
-    if verbose:
-        print(f'loading:{files}')
-    all_data = load_csv_files_as_dict(files, index=index,verbose=verbose)
-    return all_data
-
-
-def concat_csv_files_as_dataframe(directory_path):
-    dict_of_dataframes = load_all_csv(directory_path)
-    all_data = pd.concat(dict_of_dataframes.values())
-    return all_data
-
-
-def load_csv_file(file_path, index=None):
-    """Load a csv file as a dataset. Columns name are sanitized as lower snake case
-
-    Args:
-        file_path (string): the file's path
-
-    Returns:
-        Dataframe: a Pandas DataFrame
-    """
-    df = pd.read_csv(file_path, index_col=index)
-    df.columns = bstring.to_snake_case(df.columns.tolist())
-    return df
-
-
-def load_csv_files_as_dict(files, index=None, verbose=False):
-    all_data = {}
-    for f in files:
-        df = load_csv_file(f, index=index)
-        # add dataframe to dict
-        key = bstring.to_snake_case(f[:-4])
-        key = key.split('/')[-1]
-        if verbose:
-            print(f"Parsing {f} key:{key}")
-        all_data[key] = df
-
-    return all_data
-
-
-def load_csv(dataset_path):
-    """Load a csv file as a dataset. Columns name are sanitized as lower snake case
-
-    Args:
-        dataset_path (string): the file's path
-
-    Returns:
-        Dataframe: a Pandas DataFrame
-    """
-    df = pd.read_csv(dataset_path)
-    df.columns = bstring.to_snake_case(df.columns.tolist())
-    return df
+    print('bs_eda.load_all_csv deprecated use bs_file.load_all_csv')
+    return bsf.load_all_csv(dataset_path=dataset_path, exclude=exclude, index=index, verbose=verbose)
 
 
 def get_numerical_columns(data):
@@ -126,7 +31,7 @@ def get_numerical_columns(data):
 
 
 def get_categorical_columns(data):
-    return list(data.select_dtypes(include=['object','category']).columns.values)
+    return list(data.select_dtypes(include=['object', 'category']).columns.values)
 
 
 def get_histplot(data, column, log=False, rotation=0):
@@ -390,7 +295,7 @@ def get_nrows_ncols(dim):
 
     Returns:
         int,int: number of rows, number of columns
-    """    
+    """
     ncols = round(math.sqrt(dim))
     nrows = round(math.ceil(dim / math.sqrt(dim)))
     #print(f'dim:{dim}, n_cols:{ncols}, n_rows:{nrows}')
@@ -509,18 +414,20 @@ def get_suspected_outliers(data, feature, show=False):
             data=data, feature=feature, value=high_limit, operator='>')
         return low_outlier, high_outlier
 
+
 def split_by_row(data, percentage):
     da = data.sample(frac=percentage)
     ta = data[~data.index.isin(da.index)]
-    da=da.reset_index(drop=True)
-    ta=ta.reset_index(drop=True)
-    #print(da.info(),ta.info())
+    da = da.reset_index(drop=True)
+    ta = ta.reset_index(drop=True)
+    # print(da.info(),ta.info())
     return da, ta
 
+
 def train_val_test_split(X, y, test_size, train_size, val_size, random_state=None, show=False):
-    if isinstance(X,pd.DataFrame):
+    if isinstance(X, pd.DataFrame):
         X = X.reset_index(drop=True)
-    if isinstance(y,pd.Series):
+    if isinstance(y, pd.Series):
         y = y.reset_index(drop=True)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, train_size=train_size, random_state=random_state)
@@ -530,7 +437,6 @@ def train_val_test_split(X, y, test_size, train_size, val_size, random_state=Non
         print("\nSplitting into train, val and test sets")
         print(f"\tX_train: {X_train.shape}\n\tX_val: {X_val.shape}\n\tX_test: {X_test.shape}\n\ty_train: {y_train.shape}\n\ty_val: {y_val.shape}\n\ty_test: {y_test.shape}")
     return X_train, X_val, X_test, y_train, y_val, y_test
-
 
 
 def get_similar_row(to_this_row, in_data, based_on_cols, show=False):
@@ -583,6 +489,7 @@ def unbiased_cramer_v(x, y, show=False):
             f"\nchi2: {chi2:.4f}\npvalue: {pvalue:.4f}\nCramer V: {cramer_v:.4f}\n")
     return chi2, pvalue, cramer_v
 
+
 def get_ordered_categories(data, by):
     df = data.copy()
     categories = {}
@@ -592,9 +499,9 @@ def get_ordered_categories(data, by):
         ordered_df = ordered_df.groupby(cat).agg('mean').reset_index()
         ordered_df.sort_values(
             by, ascending=True, inplace=True, ignore_index=True)
-        #print(type(ordered_df[cat].values))
-        categories[cat]=[]
-        for c in ordered_df[cat].values: 
+        # print(type(ordered_df[cat].values))
+        categories[cat] = []
+        for c in ordered_df[cat].values:
             categories[cat].append(c)
         #categories[cat] = ordered_df[cat].values
     return categories

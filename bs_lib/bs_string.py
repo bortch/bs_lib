@@ -2,6 +2,14 @@ import re
 
 
 def to_snake_case(string):
+    """Transform input string into snake_case version
+
+    Args:
+        string (str): String to reformat in snake_case
+
+    Returns:
+        str: snake_case string
+    """    
     if isinstance(string, list):
         results = []
         for s in range(len(string)):
