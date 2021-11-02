@@ -5,7 +5,7 @@ import numpy as np
 
 import bs_lib.bs_string as bstring
 
-def get_list_dir(in_directory_path, with_extension=None, match_terms=[], exclude_terms=[], separator=".",verbose=False):
+def get_list_dir(in_directory_path, with_extension=None, match_terms=None, exclude_terms=None, separator=".",verbose=False):
     """Get all files from in_directory_path without or with_extension, matching given match_term or not in exclude_term. 
     It creates a dict with the filename as value and as key the first part of the filename splitted around a given separator or '.'
 
@@ -21,6 +21,10 @@ def get_list_dir(in_directory_path, with_extension=None, match_terms=[], exclude
         dict: A dict where 'value' contains the whole filename and 'keys' are the first part of the splitted filename around the given separator
     """    
     files = {}
+    if not isinstance(match_terms,list):
+        match_terms=[]
+    if not isinstance(exclude_terms,list):
+        exclude_terms=[]
     all_files_in_directory = listdir(in_directory_path) 
     for filename in sorted(all_files_in_directory):
         if verbose:
@@ -38,7 +42,7 @@ def get_list_dir(in_directory_path, with_extension=None, match_terms=[], exclude
             files[file_name] = filename
     return files
 
-def load_all_csv(dataset_path="dataset", exclude=[], index=None, verbose=False):
+def load_all_csv(dataset_path="dataset", exclude=None, index=None, verbose=False):
     """Read every csv files from a directory and return a dictionnay of pandas DataFrames. 
     Dictionnary's keys are the filename without extension.
 
@@ -51,6 +55,8 @@ def load_all_csv(dataset_path="dataset", exclude=[], index=None, verbose=False):
     Returns:
         dict: a dictionnay of pandas DataFrames. Dictionnary's keys are the filename in snake case and without extension.
     """
+    if not isinstance(exclude,list):
+        exclude=[]
     files = [join(dataset_path, f) for f in listdir(dataset_path) if (
         isfile(join(dataset_path, f)) and f.endswith('.csv') and f not in exclude)]
     if verbose:

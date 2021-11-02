@@ -1,11 +1,9 @@
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.gridspec as gridspec
 import seaborn as sns
 
-# ,train_test_split, GridSearchCV
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import validation_curve
 from sklearn.metrics import classification_report, confusion_matrix
@@ -21,6 +19,13 @@ sns.set_style('darkgrid')
 
 
 def show_elbow(data, max_iter=10, title=''):
+    """
+
+    Args:
+        data:
+        max_iter:
+        title:
+    """
     nb_clusters = range(max_iter)
     inertia = np.empty(max_iter)
     for i in nb_clusters:
@@ -36,8 +41,8 @@ def show_elbow(data, max_iter=10, title=''):
 
 
 def get_nn_learning_curve(history, title='', filename=None, show=False):
-    '''history: tf History object with keys: ['loss', 'accuracy', 'val_loss', 'val_accuracy']
-    '''
+    """history: tf History object with keys: ['loss', 'accuracy', 'val_loss', 'val_accuracy']
+    """
     print(history.keys())
     if 'val_loss' in history:
         val_loss = history['val_loss']
@@ -63,14 +68,14 @@ def get_loss_curve(loss, val_loss=None, title='', filename=None, show=False):
     plt.suptitle(f'Loss curve', fontsize=14)
     plt.title(title, fontsize=10)
     plt.plot(loss, label='train')
-    if not val_loss == None:
+    if val_loss:
         plt.plot(val_loss, label='validation')
     plt.xlabel('epochs')
     plt.ylabel('loss')
     plt.legend()
     if filename:
         plt.savefig(f'{filename}_loss_curve.png')
-        if show == True:
+        if show:
             plt.show()
     else:
         plt.show()
@@ -82,14 +87,14 @@ def get_accuracy_curve(accuracy, val_accuracy=None, title='', filename=None, sho
     plt.suptitle(f'Accuracy curve', fontsize=14)
     plt.title(title, fontsize=10)
     plt.plot(accuracy, label='train')
-    if not val_accuracy == None:
+    if val_accuracy:
         plt.plot(val_accuracy, label='validation')
     plt.xlabel('epochs')
     plt.ylabel('accuracy')
     plt.legend()
     if filename:
         plt.savefig(f'{filename}_accuracy_curve.png')
-        if show == True:
+        if show:
             plt.show()
     else:
         plt.show()
@@ -99,9 +104,9 @@ def get_reports(y, y_pred, classes=None, title='', filename=None, show=False):
     plt.figure(figsize=(12, 7))
     plt.suptitle(f'Confusion Matrix', fontsize=14)
     plt.title(title, fontsize=10)
-    cm = confusion_matrix(y, y_pred)
+    _cm = confusion_matrix(y, y_pred)
     if classes:
-        sns.heatmap(cm, annot=True, cmap='Blues',
+        sns.heatmap(_cm, annot=True, cmap='Blues',
                     cbar=False, fmt='d', xticklabels=classes, yticklabels=classes)
     else:
         sns.heatmap(cm, annot=True, cmap='Blues')
@@ -110,7 +115,7 @@ def get_reports(y, y_pred, classes=None, title='', filename=None, show=False):
     plt.legend()
     if filename:
         plt.savefig(f'{filename}_confusion_matrix.png')
-        if show == True:
+        if show:
             plt.show()
     else:
         plt.show()
@@ -129,13 +134,13 @@ def save_history(model_history, filename, raw_name=True):
     # Get the dictionary containing each metric and the loss for each epoch
     history_dict = model_history.history
     # Save it under the form of a json file
-    if raw_name == True:
+    if raw_name:
         filename = f'{filename}_history.json'
     json.dump(history_dict, open(filename, 'w'))
 
 
 def load_history(filename, raw_name=True):
-    if raw_name == True:
+    if raw_name:
         filename = f'{filename}_history.json'
     return json.load(open(filename, 'r'))
 
@@ -177,8 +182,9 @@ def get_multi_curve(histories, metrics=None, title=None, filename=None, show=Fal
             key_metric = m
             key_metric_val = f'val_{m}'
             if m in history:
-                #y_min = ((min(history[key_metric])+min(history[key_metric_val]))/2.)-0.1
-                #y_max = ((max(history[key_metric])+max(history[key_metric_val]))/2.)+0.
+                note = ''
+                # y_min = ((min(history[key_metric])+min(history[key_metric_val]))/2.)-0.1
+                # y_max = ((max(history[key_metric])+max(history[key_metric_val]))/2.)+0.
                 if m == 'accuracy':
                     y_ = round(max(history[key_metric_val]), 2)
                     x_ = np.argmax(history[key_metric_val])
@@ -198,30 +204,31 @@ def get_multi_curve(histories, metrics=None, title=None, filename=None, show=Fal
     # save as file or show
     if filename:
         plt.savefig(f'{filename}_multi_curve.png')
-        if show == True:
+        if show:
             plt.show()
     else:
         plt.show()
 
 
 def multi_plot_best_results(data, params_values, compare=None, x_zoom=0, y_zoom=0,
-                            labels=dict()):
-    ''' plot, zoom and show best value for a param in some data
+                            labels=None):
+    """ plot, zoom and show best value for a param in some data
     data: data to plot (matrix)
     params_value: array of param's values tested (ndarray)
     compare: another matrix to plot (matrix with same shape of data)
     x_zoom: bandwith around the best value on x-axis (int|float)
     y_zoom: bandwith around the best value on y-axis (int|float)
     labels: labels to display (dict) {"data": "data", "compare": "comparison",
-                                    "x_axis": "x", "y_axis": "y"} 
-    '''
+                                    "x_axis": "x", "y_axis": "y"}
+    """
     fig = plt.figure()
     ax = fig.add_subplot(111)
     _labels = {"data": "data",
                "compare": "comparison",
                "x_axis": "x",
                "y_axis": "y"}
-    _labels.update(labels)
+    if isinstance(labels, dict):
+        _labels.update(labels)
     plt.plot(params_values, data, label=_labels['data'])
 
     if type(compare) == 'numpy.ndarray':
@@ -241,13 +248,13 @@ def multi_plot_best_results(data, params_values, compare=None, x_zoom=0, y_zoom=
     ax_y_min = 0
     ax_y_max = ymax
 
-    if(x_zoom > 0):
+    if x_zoom > 0:
         ax_x_min = xpos-x_zoom
         ax_x_max = xpos+x_zoom
 
     ax.set_xlim(ax_x_min, ax_x_max)
 
-    if(y_zoom > 0):
+    if y_zoom > 0:
         ax_y_min = ymax-y_zoom
         ax_y_max = ymax+y_zoom
 
@@ -346,6 +353,8 @@ def plot_learning_curve(estimator, title, X, y, axes=None, ylim=None, cv=None,
         sets. Note that for classification the number of samples usually have
         to be big enough to contain at least one sample from each class.
         (default: np.linspace(0.1, 1.0, 5))
+
+   savefig: if True save as a figure
     """
     if axes is None:
         _, axes = plt.subplots(1, 3, figsize=(20, 5))

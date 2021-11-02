@@ -5,6 +5,7 @@ from tensorflow import keras
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPool2D, Dropout, BatchNormalization
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
+
 def get_generators(set_names=['train_set', 'test_set', 'val_set'], path='', image_data_generator_params={}, flow_params={}):
     """get ImageDataGenerator
 
@@ -31,7 +32,7 @@ def get_generators(set_names=['train_set', 'test_set', 'val_set'], path='', imag
     return generators
 
 
-def get_cnn(n_classes=10, kernel_size=2, filters_size=[16,32,64], pooling_size=2, layers=[8, 16], input_shape=(32, 32, 3), activation='relu', loss='categorical_crossentropy'):
+def get_cnn(n_classes=10, kernel_size=2, filters_size=[16, 32, 64], pooling_size=2, layers=[8, 16], input_shape=(32, 32, 3), activation='relu', loss='categorical_crossentropy'):
     """Create a Keras Sequential Convolution Neural Network
 
     Args:
@@ -70,3 +71,27 @@ def get_cnn(n_classes=10, kernel_size=2, filters_size=[16,32,64], pooling_size=2
 # testing
 if __name__ == "__main__":
     print('please do some tests')
+
+    param_grid = {"batch_size": [10, 20, 40, 60, 80, 100],
+                  "epochs": [10, 50, 100],
+                  "optimizer": ['SGD', 'RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax', 'Nadam'],
+                  "learn_rate": [0.001, 0.01, 0.1, 0.2, 0.3],
+                  "momentum": [0.0, 0.2, 0.4, 0.6, 0.8, 0.9],
+                  "init_mode": ['uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform', 'he_normal', 'he_uniform'],
+                  "activation": ['softmax', 'softplus', 'softsign', 'relu', 'tanh', 'sigmoid', 'hard_sigmoid', 'linear'],
+                  "weight_constraint": [1, 2, 3, 4, 5],
+                  "dropout_rate": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+                  "neurons":[1, 5, 10, 15, 20, 25, 30],
+                  
+
+                  }
+
+    cnn_desc = {"n_classes": 7,
+                "kernel_size": 3,
+                "filters_size": [16, 32, 64, 128, 256],
+                "pooling_size": 2,
+                "dropout": .1,
+                "layers": [8, 8],
+                "input_shape": (img_width, img_height, 1),
+                "activation": 'relu',
+                "loss": 'categorical_crossentropy'}

@@ -16,12 +16,12 @@ tfont = {'fontsize': 15, 'fontweight': 'bold'}
 sns.set_style('darkgrid')
 
 # DEPRECATED
-def get_list_dir(in_directory_path, with_extension=None, match_terms=[], exclude_terms=[], separator=".", verbose=False):
+def get_list_dir(in_directory_path, with_extension=None, match_terms=None, exclude_terms=None, separator=".", verbose=False):
     print('bs_eda.get_list_dir deprecated use bs_file.get_list_dir')
     return bsf.get_list_dir(in_directory_path=in_directory_path, with_extension=with_extension, match_terms=match_terms, exclude_terms=exclude_terms, separator=separator, verbose=verbose)
 
 #DEPRECATED
-def load_all_csv(dataset_path="dataset", exclude=[], index=None, verbose=False):
+def load_all_csv(dataset_path="dataset", exclude=None, index=None, verbose=False):
     print('bs_eda.load_all_csv deprecated use bs_file.load_all_csv')
     return bsf.load_all_csv(dataset_path=dataset_path, exclude=exclude, index=index, verbose=verbose)
 
@@ -231,10 +231,9 @@ def get_boxplot(data, x, y=None, orient='v', rotation=0):
     #print(f"Avg {col}: {data[col].mean()}")
 
 
-def get_pairplot(data, log=[], hue=None):
+def get_pairplot(data, log=None, hue=None):
     data_ = data.copy()
-
-    if len(log) > 0:
+    if isinstance(log,list) and (len(log) > 0):
         for i in range(len(log)):
             column = log[i]
             try:
