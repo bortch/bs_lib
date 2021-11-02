@@ -79,9 +79,6 @@ def get_kde(data, col, target, hue=None):
         plt.title(f"kde {col} vs {target}: {v}", fontdict=tfont)
         sns.kdeplot(x=data[col][data[target] == v], label=v,
                     fill=True, hue=hue_, legend=True)
-    # common_norm = False permet de ramener
-    # les 2 kde sur une même échelle
-    # on ajoute les moyennes conditionnelles
         plt.axvline(data[col].mean(),
                     c='k',
                     linestyle='dashed',
@@ -100,9 +97,6 @@ def get_kde_continue(data, col, target):
     plt.figure(figsize=(12, 7))
     plt.title(f"Kernel Density Estimation for {col}", fontdict=tfont)
     sns.kdeplot(x=data[col], y=data[target], fill=True)
-    # common_norm = False permet de ramener
-    # les 2 kde sur une même échelle
-    # on ajoute les moyennes conditionnelles
     plt.axvline(data[col].mean(), label=f'{col} mean',
                 c='red', linestyle='dashed')
     plt.axhline(data[target].mean(), label=f'{target} mean',
@@ -121,9 +115,6 @@ def get_relplot(data, x, y, hue=None, x_trace=['mean'], y_trace=['mean']):
         hue_ = y
     sns.relplot(x=x, y=y, data=data, hue=hue_, height=6, aspect=1.6)
     plt.title(f"Relation plot for {x} vs {y}", fontdict=tfont)
-    # common_norm = False permet de ramener
-    # les 2 kde sur une même échelle
-    # on ajoute les moyennes conditionnelles
     for i in range(len(x_trace)):
         if x_trace[i] == 'mean':
             plt.axvline(data[x].mean(), label=f'{x} mean',
@@ -158,9 +149,6 @@ def get_lmplot(data, x, y, hue=None):
                robust=True, palette='tab10', hue=hue,
                scatter_kws=dict(s=60, linewidths=.7, edgecolors='black'))
     plt.title(f"Relation plot for {x} vs {y}", fontdict=tfont)
-    # common_norm = False permet de ramener
-    # les 2 kde sur une même échelle
-    # on ajoute les moyennes conditionnelles
     plt.axvline(data[x].mean(), label=f'{x} mean',
                 c='red', linestyle='dashed')
     plt.axhline(data[y].mean(), label=f'{y} mean',
@@ -175,15 +163,6 @@ def get_joinplot(data, col, target):
     g = sns.jointplot(x=data[col], y=data[target])
     g.plot_joint(sns.kdeplot, color="r", zorder=0, levels=6)
     g.plot_marginals(sns.rugplot, color="r", height=-.15, clip_on=False)
-    #plt.title(f"Join plot for {col} vs {target}", fontdict=tfont)
-    # common_norm = False permet de ramener
-    # les 2 kde sur une même échelle
-    # on ajoute les moyennes conditionnelles
-    # plt.axvline(data[col].mean(), label=f'{col} mean',
-    #              c='red', linestyle='dashed')
-    # plt.axhline(data[target].mean(), label=f'{target} mean',
-    #              c='blue', linestyle='dashed')
-    # plt.legend()
     plt.show()
     print(f"Avg {col}: {data[col].mean()}")
     print(f"Avg {target}: {data[target].mean()}")
@@ -222,13 +201,6 @@ def get_boxplot(data, x, y=None, orient='v', rotation=0):
         sns.boxplot(x=data[x], orient=orient)
         plt.xticks(rotation=rotation)
         plt.show()
-    # common_norm = False permet de ramener
-    # les 2 kde sur une même échelle
-    # on ajoute les moyennes conditionnelles
-    # plt.axvline(data[col].mean(), label=f'{col} mean',
-    #             c='red', linestyle='dashed')
-    # plt.legend()
-    #print(f"Avg {col}: {data[col].mean()}")
 
 
 def get_pairplot(data, log=None, hue=None):
@@ -260,9 +232,7 @@ def get_evolution(data, target, value='std', start=0, stop=100, num=10):
     # plan evolution range
     range_space = np.linspace(start=start, stop=stop, num=num)
     # create a datafram
-    #column_name = f'pivot_{target_var}'
     df_columns = get_numerical_columns(data)
-    # df_columns.append(column_name)
     results = pd.DataFrame(columns=df_columns)
     # for each step in the range_space
     j = start
@@ -278,15 +248,11 @@ def get_evolution(data, target, value='std', start=0, stop=100, num=10):
                 data[target] < i)][df_columns].count()
         j = i
         # add the pivot
-        # std_series.loc[column_name]=i
-        #std_series = std_series.to_frame().T
-        # print(std_series)
         results.loc[i] = std_series.array
-        # .append(std_series,ignore_index=True)
     return results
 
 
-def get_nrows_ncols(dim):
+def get_nrows_ncols(dim, verbose=False):
     """Get the number of rows and columns given a number of items
 
     Args:
@@ -297,7 +263,8 @@ def get_nrows_ncols(dim):
     """
     ncols = round(math.sqrt(dim))
     nrows = round(math.ceil(dim / math.sqrt(dim)))
-    #print(f'dim:{dim}, n_cols:{ncols}, n_rows:{nrows}')
+    if verbose:
+        print(f'dim:{dim}, n_cols:{ncols}, n_rows:{nrows}')
     return nrows, ncols
 
 
@@ -309,7 +276,6 @@ def get_features_as_grid_of_lineplot(data, dim=None, log=False):
     fig, ax = plt.subplots(nrows=nrows, ncols=ncols, figsize=(15, 10))
 
     for i, subplot in zip(range(dim), ax.flatten()):
-        # plt.subplot(n_rows,n_cols,i+1)
         if log:
             y = np.log(data[features[i]])
         else:
@@ -339,7 +305,6 @@ def get_correlation(data, target=None, fields=None):
         plt.figure(figsize=(2, 7))
         plt.title(f'Coefficient de Correlation: {target}\n', tfont)
         corr = corr.filter([target]).drop([target])
-        #corr = [data.corrwith(data[target], axis=0)]
     else:
         plt.figure(figsize=(12, 7))
         plt.title('Correlation Coefficient \n', tfont)
@@ -377,11 +342,11 @@ def get_occurence(data, feature, value, operator='=', show=False):
     if show:
         n_entries = entries.count()
         if n_entries > 1:
-            s = 's'
+            s = 'ies'
         else:
-            s = ''
+            s = 'y'
         print(
-            f"Il y a {n_entries} entrée{s} ayant une valeur {operator} à {value} pour la variable '{feature}'")
+            f"There are {n_entries} entr{s} with a value {operator} {value} for the variable '{feature}'")
     else:
         return entries
 
@@ -399,11 +364,11 @@ def get_suspected_outliers(data, feature, show=False):
     if show:
         print(f"Q1: {q1}\nQ3: {q3}\nIQR: {irq}")
         print(
-            f"\nLimite inférieur en-deça de laquelle une valeur est suspecte: {low_limit}")
+            f"\nLower limit below which a value is suspect: {low_limit}")
         get_occurence(data=data, feature=feature,
                       value=low_limit, operator='<', show=True)
         print(
-            f"\nLimite supérieur au-delà de laquelle une valeur est suspecte: {high_limit}")
+            f"\nThe upper limit beyond which a value is suspect: {high_limit}")
         get_occurence(data=data, feature=feature,
                       value=high_limit, operator='>', show=True)
     else:
@@ -454,7 +419,6 @@ def get_similar_row(to_this_row, in_data, based_on_cols, show=False):
 
         if not df_iteration_result.empty:
             subset.append(feature)
-            #print(f"solution found:{df_iteration_result[feature]}\n")
             df_temp = df_iteration_result
             df_result = df_iteration_result
 
@@ -467,8 +431,6 @@ def get_similar_row(to_this_row, in_data, based_on_cols, show=False):
                     f"\nSolution:\nrow:\n{to_this_row}\nfeature:\n{subset}\nresult:\n{df_result.describe()}\n")
             return df_result
     return df_result
-    #ary = cdist(df2, df1, metric='euclidean')
-    # df2[ary==ary.min()]
 
 
 def unbiased_cramer_v(x, y, show=False):
@@ -498,9 +460,7 @@ def get_ordered_categories(data, by):
         ordered_df = ordered_df.groupby(cat).agg('mean').reset_index()
         ordered_df.sort_values(
             by, ascending=True, inplace=True, ignore_index=True)
-        # print(type(ordered_df[cat].values))
         categories[cat] = []
         for c in ordered_df[cat].values:
             categories[cat].append(c)
-        #categories[cat] = ordered_df[cat].values
     return categories

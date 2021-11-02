@@ -123,9 +123,6 @@ def get_reports(y, y_pred, classes=None, title='', filename=None, show=False):
 
 
 def get_reports_using(model, X, y):
-    # sur le validation set
-    # on va prédite et comparer les prédictions du y_val
-    # on peut voir où sont faites les erreurs de classification
     y_pred = model.predict(X)
     get_reports(y, y_pred)
 

@@ -72,6 +72,7 @@ def get_ordered_list(content):
     for key, value in content.items():
         index = Text(key, style='list_index')
     #content = {"list":{'chi2':chi2,"pvalue":pvalue,"cramer v":cramer_v}}
+    #TODO!!
 
 
 def create_column(name, options={}):
