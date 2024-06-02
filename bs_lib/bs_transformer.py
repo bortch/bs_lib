@@ -5,7 +5,7 @@ import bs_lib.bs_terminal as term
 
 
 class TypeConverter(BaseEstimator, TransformerMixin):
-    def __init__(self, type='float') -> None:
+    def __init__(self, type="float") -> None:
         self.type = type
 
     def fit(self, X, y=None):
@@ -29,7 +29,7 @@ class Discretizer(BaseEstimator, TransformerMixin):
         """
         self.kwargs = kwargs
         self.target = target
-    
+
     def set_params(self, target, kwargs):
         self.kwargs = kwargs
         self.target = target
@@ -46,18 +46,29 @@ class Discretizer(BaseEstimator, TransformerMixin):
         # https://stackoverflow.com/questions/56018238/python-float-argument-must-be-a-string-or-a-number-not-pandas-libs-interva
         print(X_.info())
         return X_
-        
+
 
 if __name__ == "__main__":
-    test = pd.DataFrame({'col1': [10, 20, 30, 9], 'col2': [
-                        5, 0, 15, 67], 'col3': [40, 10, 1, 20]})
-    term.article(title='Initial',
-                 content=term.create_dataframe(title="test dataframe", content=test))
+    test = pd.DataFrame(
+        {
+            "col1": [10, 20, 30, 9],
+            "col2": [5, 0, 15, 67],
+            "col3": [40, 10, 1, 20],
+        }
+    )
+    term.article(
+        title="Initial",
+        content=term.create_dataframe(title="test dataframe", content=test),
+    )
 
     discretizer = Discretizer(
-        ['col1', 'col2'], {"bins": [-1, 25, 75, 100], "labels": ['A', 'B', 'C']})
+        ["col1", "col2"],
+        {"bins": [-1, 25, 75, 100], "labels": ["A", "B", "C"]},
+    )
 
     test = discretizer.fit_transform(test)
 
-    term.article(title='Discretized',
-                 content=term.create_dataframe(title="test dataframe", content=test))
+    term.article(
+        title="Discretized",
+        content=term.create_dataframe(title="test dataframe", content=test),
+    )

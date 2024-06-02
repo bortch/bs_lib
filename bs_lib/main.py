@@ -8,4 +8,4 @@ import bs_terminal
 import bs_image
 
 if __name__ == "__main__":
-  print('import done!')
+    print("import done!")
