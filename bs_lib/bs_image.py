@@ -6,7 +6,7 @@ def normalize(X):
     """Normalize to [0,1]
 
     Args:
-        X (list,number): the imput to normalize
+        X (list,number): the input to normalize
 
     Returns:
         list,array,int: normalized input between 0. and 1.

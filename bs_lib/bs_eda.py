@@ -377,7 +377,20 @@ def get_boxplot(
         plt.show()
 
 
-def get_pairplot(data, log=None, hue=None):
+def get_pairplot(
+    data: pd.DataFrame, log: list | None = None, hue: str | None = None
+) -> None:
+    """Show a pair plot graph for a list of columns.
+    It will take the log of data from columns passed as argument.
+
+    Args:
+        data (pd.DataFrame): The dataframe containing the data to show \
+        in the graph
+        log (list | None, optional): name of columns of data to pass into log \
+            function. Defaults to None.
+        hue (str | None, optional): name of variable in data \
+            to map plot aspects to different colors. Defaults to None.
+    """
     data_ = data.copy()
     if isinstance(log, list) and (len(log) > 0):
         for i in range(len(log)):
